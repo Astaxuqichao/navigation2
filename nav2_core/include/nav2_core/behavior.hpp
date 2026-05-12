@@ -21,6 +21,7 @@
 #include "rclcpp/rclcpp.hpp"
 #include "nav2_util/lifecycle_node.hpp"
 #include "tf2_ros/buffer.h"
+#include "nav2_costmap_2d/costmap_2d_ros.hpp"
 #include "nav2_costmap_2d/costmap_topic_collision_checker.hpp"
 
 namespace nav2_core
@@ -52,6 +53,25 @@ public:
     std::shared_ptr<nav2_costmap_2d::CostmapTopicCollisionChecker> collision_checker) = 0;
 
   /**
+   * @brief configure overload using costmap inputs instead of collision checker
+   * @param parent pointer to user's node
+   * @param name   The name of this behavior
+   * @param global_costmap A pointer to the global costmap
+   * @param local_costmap  A pointer to the local costmap
+   */
+  virtual void configure(
+    const rclcpp_lifecycle::LifecycleNode::WeakPtr & parent,
+    const std::string & name,
+    std::shared_ptr<nav2_costmap_2d::Costmap2DROS> global_costmap,
+    std::shared_ptr<nav2_costmap_2d::Costmap2DROS> local_costmap)
+  {
+    (void)parent;
+    (void)name;
+    (void)global_costmap;
+    (void)local_costmap;
+  }
+
+  /**
    * @brief Method to cleanup resources used on shutdown.
    */
   virtual void cleanup() = 0;
@@ -65,6 +85,22 @@ public:
    * @brief Method to deactive Behavior and any threads involved in execution.
    */
   virtual void deactivate() = 0;
+
+  /**
+   * @brief Run the behavior, with output status message
+   * @param message Output: status message
+   * @return status code (0 = success)
+   */
+  virtual uint32_t runBehavior(std::string & message)
+  {
+    (void)message;
+    return 0;
+  }
+
+  /**
+   * @brief Stop the currently executing behavior
+   */
+  virtual void stop() {}
 };
 
 }  // namespace nav2_core

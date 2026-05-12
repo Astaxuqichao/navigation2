@@ -94,11 +94,32 @@ geometry_msgs::msg::TwistStamped MPPIController::computeVelocityCommands(
   std::lock_guard<std::mutex> param_lock(*parameters_handler_->getLock());
   nav_msgs::msg::Path transformed_plan = path_handler_.transformPath(robot_pose);
 
+  geometry_msgs::msg::Pose goal = path_handler_.getTransformedGoal(robot_pose.header.stamp).pose;
+
+  // Ensure robot_pose is expressed in the costmap's global frame so that
+  // optimizer trajectory integration and cost lookups operate in the same
+  // coordinate frame as the transformed plan.
+  geometry_msgs::msg::PoseStamped robot_pose_in_costmap = robot_pose;
+  const std::string & costmap_frame = costmap_ros_->getGlobalFrameID();
+  if (robot_pose.header.frame_id != costmap_frame) {
+    try {
+      robot_pose_in_costmap = tf_buffer_->transform(
+        robot_pose, costmap_frame,
+        tf2::durationFromSec(0.1));
+    } catch (const tf2::TransformException & ex) {
+      RCLCPP_WARN(
+        logger_,
+        "Failed to transform robot pose from '%s' to costmap frame '%s': %s. "
+        "Using original pose.",
+        robot_pose.header.frame_id.c_str(), costmap_frame.c_str(), ex.what());
+    }
+  }
+
   nav2_costmap_2d::Costmap2D * costmap = costmap_ros_->getCostmap();
   std::unique_lock<nav2_costmap_2d::Costmap2D::mutex_t> costmap_lock(*(costmap->getMutex()));
 
   geometry_msgs::msg::TwistStamped cmd =
-    optimizer_.evalControl(robot_pose, robot_speed, transformed_plan, goal_checker);
+    optimizer_.evalControl(robot_pose_in_costmap, robot_speed, transformed_plan, goal, goal_checker);
 
 #ifdef BENCHMARK_TESTING
   auto end = std::chrono::system_clock::now();

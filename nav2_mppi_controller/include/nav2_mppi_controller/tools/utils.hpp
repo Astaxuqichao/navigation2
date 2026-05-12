@@ -195,17 +195,16 @@ inline models::Path toTensor(const nav_msgs::msg::Path & path)
  * @brief Check if the robot pose is within the Goal Checker's tolerances to goal
  * @param global_checker Pointer to the goal checker
  * @param robot Pose of robot
- * @param path Path to retreive goal pose from
+ * @param goal Goal pose
  * @return bool If robot is within goal checker tolerances to the goal
  */
 inline bool withinPositionGoalTolerance(
   nav2_core::GoalChecker * goal_checker,
   const geometry_msgs::msg::Pose & robot,
-  const models::Path & path)
+  const geometry_msgs::msg::Pose & goal)
 {
-  const auto goal_idx = path.x.shape(0) - 1;
-  const auto goal_x = path.x(goal_idx);
-  const auto goal_y = path.y(goal_idx);
+  const auto goal_x = goal.position.x;
+  const auto goal_y = goal.position.y;
 
   if (goal_checker) {
     geometry_msgs::msg::Pose pose_tolerance;
@@ -231,17 +230,16 @@ inline bool withinPositionGoalTolerance(
  * @brief Check if the robot pose is within tolerance to the goal
  * @param pose_tolerance Pose tolerance to use
  * @param robot Pose of robot
- * @param path Path to retreive goal pose from
+ * @param goal Goal pose
  * @return bool If robot is within tolerance to the goal
  */
 inline bool withinPositionGoalTolerance(
   float pose_tolerance,
   const geometry_msgs::msg::Pose & robot,
-  const models::Path & path)
+  const geometry_msgs::msg::Pose & goal)
 {
-  const auto goal_idx = path.x.shape(0) - 1;
-  const auto goal_x = path.x(goal_idx);
-  const auto goal_y = path.y(goal_idx);
+  const auto goal_x = goal.position.x;
+  const auto goal_y = goal.position.y;
 
   const auto pose_tolerance_sq = pose_tolerance * pose_tolerance;
 

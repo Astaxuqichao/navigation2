@@ -105,8 +105,9 @@ TEST(CriticManagerTests, BasicCriticOperations)
   models::Path path;
   xt::xtensor<float, 1> costs;
   float model_dt = 0.1;
+  geometry_msgs::msg::Pose dummy_goal;
   CriticData data =
-  {state, generated_trajectories, path, costs, model_dt, false, nullptr, nullptr,
+  {state, generated_trajectories, path, dummy_goal, costs, model_dt, false, nullptr, nullptr,
     std::nullopt, std::nullopt};
 
   data.fail_flag = true;

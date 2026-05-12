@@ -76,6 +76,34 @@ public:
   virtual nav_msgs::msg::Path createPlan(
     const geometry_msgs::msg::PoseStamped & start,
     const geometry_msgs::msg::PoseStamped & goal) = 0;
+
+  /**
+   * @brief makePlan - Creates a plan with output parameters for the path and a status message
+   * @param start   The starting pose of the robot
+   * @param goal    The goal pose of the robot
+   * @param plan    Output: the sequence of poses to get from start to goal
+   * @param message Output: status message
+   * @return status code (0 = success)
+   */
+  virtual uint32_t makePlan(
+    const geometry_msgs::msg::PoseStamped & start,
+    const geometry_msgs::msg::PoseStamped & goal,
+    nav_msgs::msg::Path & plan,
+    std::string & message)
+  {
+    plan = createPlan(start, goal);
+    if (!plan.poses.empty()) {
+      message = "Plan successfully created";
+      return 0;
+    }
+    return 50;
+  }
+
+  /**
+   * @brief cancel - Cancel the current planning task
+   * @return true if cancellation was successful
+   */
+  virtual bool cancel() {return true;}
 };
 
 }  // namespace nav2_core

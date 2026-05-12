@@ -125,7 +125,7 @@ public:
     const geometry_msgs::msg::Twist & robot_speed,
     const nav_msgs::msg::Path & plan, nav2_core::GoalChecker * goal_checker)
   {
-    prepare(robot_pose, robot_speed, plan, goal_checker);
+    prepare(robot_pose, robot_speed, plan, geometry_msgs::msg::Pose{}, goal_checker);
 
     EXPECT_EQ(critics_data_.goal_checker, nullptr);
     EXPECT_NEAR(xt::sum(costs_, immediate)(), 0, 1e-6);  // should be reset

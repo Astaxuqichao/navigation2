@@ -249,9 +249,25 @@ DWBLocalPlanner::computeVelocityCommands(
     results = std::make_shared<dwb_msgs::msg::LocalPlanEvaluation>();
   }
 
+  // The trajectory generator and critics work in the costmap's coordinate
+  // space (costmap->worldToMap uses the costmap global_frame origin).
+  // Transform the incoming robot pose into the costmap's global_frame so
+  // that trajectory points are expressed in the same coordinate system.
+  geometry_msgs::msg::PoseStamped pose_in_costmap = pose;
+  const std::string costmap_frame = costmap_ros_->getGlobalFrameID();
+  if (!pose.header.frame_id.empty() && pose.header.frame_id != costmap_frame) {
+    if (!nav_2d_utils::transformPose(tf_, costmap_frame, pose, pose_in_costmap,
+                                     transform_tolerance_))
+    {
+      throw dwb_core::PlannerTFException(
+        std::string("Unable to transform robot pose into costmap frame '") +
+        costmap_frame + "'");
+    }
+  }
+
   try {
     nav_2d_msgs::msg::Twist2DStamped cmd_vel2d = computeVelocityCommands(
-      nav_2d_utils::poseStampedToPose2D(pose),
+      nav_2d_utils::poseStampedToPose2D(pose_in_costmap),
       nav_2d_utils::twist3Dto2D(velocity), results);
     pub_->publishEvaluation(results);
     geometry_msgs::msg::TwistStamped cmd_vel;

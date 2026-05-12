@@ -133,36 +133,31 @@ TEST(UtilsTests, WithTolTests)
   nav2_core::GoalChecker * goal_checker = new TestGoalChecker;
 
   // Test not in tolerance
-  nav_msgs::msg::Path path;
-  path.poses.resize(2);
-  path.poses[1].pose.position.x = 0.0;
-  path.poses[1].pose.position.y = 0.0;
-  models::Path path_t = toTensor(path);
-  EXPECT_FALSE(withinPositionGoalTolerance(goal_checker, pose, path_t));
-  EXPECT_FALSE(withinPositionGoalTolerance(0.25, pose, path_t));
+  geometry_msgs::msg::Pose goal_pose;
+  goal_pose.position.x = 0.0;
+  goal_pose.position.y = 0.0;
+  EXPECT_FALSE(withinPositionGoalTolerance(goal_checker, pose, goal_pose));
+  EXPECT_FALSE(withinPositionGoalTolerance(0.25, pose, goal_pose));
 
   // Test in tolerance
-  path.poses[1].pose.position.x = 9.8;
-  path.poses[1].pose.position.y = 0.95;
-  path_t = toTensor(path);
-  EXPECT_TRUE(withinPositionGoalTolerance(goal_checker, pose, path_t));
-  EXPECT_TRUE(withinPositionGoalTolerance(0.25, pose, path_t));
+  goal_pose.position.x = 9.8;
+  goal_pose.position.y = 0.95;
+  EXPECT_TRUE(withinPositionGoalTolerance(goal_checker, pose, goal_pose));
+  EXPECT_TRUE(withinPositionGoalTolerance(0.25, pose, goal_pose));
 
-  path.poses[1].pose.position.x = 10.0;
-  path.poses[1].pose.position.y = 0.76;
-  path_t = toTensor(path);
-  EXPECT_TRUE(withinPositionGoalTolerance(goal_checker, pose, path_t));
-  EXPECT_TRUE(withinPositionGoalTolerance(0.25, pose, path_t));
+  goal_pose.position.x = 10.0;
+  goal_pose.position.y = 0.76;
+  EXPECT_TRUE(withinPositionGoalTolerance(goal_checker, pose, goal_pose));
+  EXPECT_TRUE(withinPositionGoalTolerance(0.25, pose, goal_pose));
 
-  path.poses[1].pose.position.x = 9.76;
-  path.poses[1].pose.position.y = 1.0;
-  path_t = toTensor(path);
-  EXPECT_TRUE(withinPositionGoalTolerance(goal_checker, pose, path_t));
-  EXPECT_TRUE(withinPositionGoalTolerance(0.25, pose, path_t));
+  goal_pose.position.x = 9.76;
+  goal_pose.position.y = 1.0;
+  EXPECT_TRUE(withinPositionGoalTolerance(goal_checker, pose, goal_pose));
+  EXPECT_TRUE(withinPositionGoalTolerance(0.25, pose, goal_pose));
 
   delete goal_checker;
   goal_checker = nullptr;
-  EXPECT_FALSE(withinPositionGoalTolerance(goal_checker, pose, path_t));
+  EXPECT_FALSE(withinPositionGoalTolerance(goal_checker, pose, goal_pose));
 }
 
 TEST(UtilsTests, AnglesTests)
@@ -213,8 +208,9 @@ TEST(UtilsTests, FurthestAndClosestReachedPoint)
   xt::xtensor<float, 1> costs;
   float model_dt = 0.1;
 
+  geometry_msgs::msg::Pose dummy_goal;
   CriticData data =
-  {state, generated_trajectories, path, costs, model_dt, false, nullptr, nullptr,
+  {state, generated_trajectories, path, dummy_goal, costs, model_dt, false, nullptr, nullptr,
     std::nullopt, std::nullopt};  /// Caution, keep references
 
   // Attempt to set furthest point if notionally set, should not change
@@ -223,8 +219,9 @@ TEST(UtilsTests, FurthestAndClosestReachedPoint)
   EXPECT_EQ(data.furthest_reached_path_point, 99999);
 
   // Attempt to set if not set already with no other information, should fail
+  geometry_msgs::msg::Pose dummy_goal2;
   CriticData data2 =
-  {state, generated_trajectories, path, costs, model_dt, false, nullptr, nullptr,
+  {state, generated_trajectories, path, dummy_goal2, costs, model_dt, false, nullptr, nullptr,
     std::nullopt, std::nullopt};  /// Caution, keep references
   setPathFurthestPointIfNotSet(data2);
   EXPECT_EQ(data2.furthest_reached_path_point, 0);
@@ -242,8 +239,9 @@ TEST(UtilsTests, FurthestAndClosestReachedPoint)
   }
   path = toTensor(plan);
 
+  geometry_msgs::msg::Pose dummy_goal3;
   CriticData data3 =
-  {state, generated_trajectories, path, costs, model_dt, false, nullptr, nullptr,
+  {state, generated_trajectories, path, dummy_goal3, costs, model_dt, false, nullptr, nullptr,
     std::nullopt, std::nullopt};  /// Caution, keep references
   EXPECT_EQ(findPathFurthestReachedPoint(data3), 5u);
   EXPECT_EQ(findPathTrajectoryInitialPoint(data3), 5u);
@@ -257,8 +255,9 @@ TEST(UtilsTests, findPathCosts)
   xt::xtensor<float, 1> costs;
   float model_dt = 0.1;
 
+  geometry_msgs::msg::Pose dummy_goal;
   CriticData data =
-  {state, generated_trajectories, path, costs, model_dt, false, nullptr, nullptr,
+  {state, generated_trajectories, path, dummy_goal, costs, model_dt, false, nullptr, nullptr,
     std::nullopt, std::nullopt};  /// Caution, keep references
 
   // Test not set if already set, should not change
@@ -270,8 +269,9 @@ TEST(UtilsTests, findPathCosts)
   setPathCostsIfNotSet(data, nullptr);
   EXPECT_EQ(data.path_pts_valid->size(), 10u);
 
+  geometry_msgs::msg::Pose dummy_goal3;
   CriticData data3 =
-  {state, generated_trajectories, path, costs, model_dt, false, nullptr, nullptr,
+  {state, generated_trajectories, path, dummy_goal3, costs, model_dt, false, nullptr, nullptr,
     std::nullopt, std::nullopt};  /// Caution, keep references
 
   auto costmap_ros = std::make_shared<nav2_costmap_2d::Costmap2DROS>(

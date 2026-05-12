@@ -99,6 +99,17 @@ public:
   virtual void setPlan(const nav_msgs::msg::Path & path) = 0;
 
   /**
+   * @brief local setPlanWithCheck - Sets the global plan with a validity check
+   * @param path The global plan
+   * @return true if the plan was set successfully
+   */
+  virtual bool setPlanWithCheck(const nav_msgs::msg::Path & path)
+  {
+    setPlan(path);
+    return true;
+  }
+
+  /**
    * @brief Controller computeVelocityCommands - calculates the best command given the current pose and velocity
    *
    * It is presumed that the global plan is already set.
@@ -115,6 +126,27 @@ public:
     const geometry_msgs::msg::PoseStamped & pose,
     const geometry_msgs::msg::Twist & velocity,
     nav2_core::GoalChecker * goal_checker) = 0;
+
+  /**
+   * @brief computeVelocityCommands overload with output parameters for cmd_vel and message
+   * @param pose      Current robot pose
+   * @param velocity  Current robot velocity
+   * @param cmd_vel   Output velocity command
+   * @param goal_checker Pointer to the current goal checker
+   * @param message   Output status message
+   * @return status code (0 = success)
+   */
+  virtual uint32_t computeVelocityCommands(
+    const geometry_msgs::msg::PoseStamped & pose,
+    const geometry_msgs::msg::Twist & velocity,
+    geometry_msgs::msg::TwistStamped & cmd_vel,
+    nav2_core::GoalChecker * goal_checker,
+    std::string & message)
+  {
+    cmd_vel = computeVelocityCommands(pose, velocity, goal_checker);
+    message = "";
+    return 0;
+  }
 
   /**
    * @brief Limits the maximum linear speed of the robot.

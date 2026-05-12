@@ -17,6 +17,8 @@
 #include "nav2_mppi_controller/tools/path_handler.hpp"
 #include "nav2_mppi_controller/tools/utils.hpp"
 #include "nav2_costmap_2d/costmap_2d_ros.hpp"
+#include "nav2_core/exceptions.hpp"
+#include "nav2_core/exceptions.hpp"
 
 namespace mppi
 {
@@ -75,17 +77,38 @@ PathHandler::getGlobalPlanConsideringBoundsInCostmapFrame(
     closest_point, global_plan_up_to_inversion_.poses.end(), prune_distance_);
 
   unsigned int mx, my;
-  // Find the furthest relevent pose on the path to consider within costmap
-  // bounds
-  // Transforming it to the costmap frame in the same loop
+  // Look up the transform from the global plan frame to the costmap frame
+  // ONCE for all path points, instead of calling tf_buffer_->transform()
+  // per point (which performs a full lookupTransform + timestamp interpolation
+  // each call).  With local_costmap.global_frame=base_link the transform
+  // changes every cycle and this can otherwise account for 40-80 individual
+  // TF queries per control step, causing measurable stutter.
+  const std::string costmap_frame = costmap_->getGlobalFrameID();
+  const std::string plan_frame = global_plan_.header.frame_id;
+  geometry_msgs::msg::TransformStamped plan_to_costmap_tf;
+  try {
+    plan_to_costmap_tf = tf_buffer_->lookupTransform(
+      costmap_frame, plan_frame,
+      global_pose.header.stamp,
+      tf2::durationFromSec(transform_tolerance_));
+  } catch (const tf2::TransformException & ex) {
+    RCLCPP_ERROR(
+      logger_,
+      "Failed to look up transform from '%s' to costmap frame '%s': %s",
+      plan_frame.c_str(), costmap_frame.c_str(), ex.what());
+    return {transformed_plan, closest_point};
+  }
+
   for (auto global_plan_pose = closest_point; global_plan_pose != pruned_plan_end;
     ++global_plan_pose)
   {
-    // Transform from global plan frame to costmap frame
+    // Transform from global plan frame to costmap frame using the pre-fetched
+    // transform (avoids repeated TF lookups inside the loop).
     geometry_msgs::msg::PoseStamped costmap_plan_pose;
     global_plan_pose->header.stamp = global_pose.header.stamp;
-    global_plan_pose->header.frame_id = global_plan_.header.frame_id;
-    transformPose(costmap_->getGlobalFrameID(), *global_plan_pose, costmap_plan_pose);
+    global_plan_pose->header.frame_id = plan_frame;
+    tf2::doTransform(*global_plan_pose, costmap_plan_pose, plan_to_costmap_tf);
+    costmap_plan_pose.header.frame_id = costmap_frame;
 
     // Check if pose is inside the costmap
     if (!costmap_->getCostmap()->worldToMap(
@@ -110,7 +133,7 @@ geometry_msgs::msg::PoseStamped PathHandler::transformToGlobalPlanFrame(
 
   geometry_msgs::msg::PoseStamped robot_pose;
   if (!transformPose(global_plan_up_to_inversion_.header.frame_id, pose, robot_pose)) {
-    throw std::runtime_error(
+    throw nav2_core::PlannerException(
             "Unable to transform robot pose into global plan's frame");
   }
 
@@ -136,7 +159,7 @@ nav_msgs::msg::Path PathHandler::transformPath(
   }
 
   if (transformed_plan.poses.empty()) {
-    throw std::runtime_error("Resulting plan has 0 poses in it.");
+    throw nav2_core::PlannerException("Resulting plan has 0 poses in it.");
   }
 
   return transformed_plan;
@@ -180,6 +203,22 @@ void PathHandler::setPath(const nav_msgs::msg::Path & plan)
 }
 
 nav_msgs::msg::Path & PathHandler::getPath() {return global_plan_;}
+
+geometry_msgs::msg::PoseStamped PathHandler::getTransformedGoal(
+  const builtin_interfaces::msg::Time & stamp)
+{
+  auto goal = global_plan_.poses.back();
+  goal.header.frame_id = global_plan_.header.frame_id;
+  goal.header.stamp = stamp;
+  if (goal.header.frame_id.empty()) {
+    throw std::runtime_error("Goal pose has an empty frame_id");
+  }
+  geometry_msgs::msg::PoseStamped transformed_goal;
+  if (!transformPose(costmap_->getGlobalFrameID(), goal, transformed_goal)) {
+    throw std::runtime_error("Unable to transform goal pose into costmap frame");
+  }
+  return transformed_goal;
+}
 
 void PathHandler::prunePlan(nav_msgs::msg::Path & plan, const PathIterator end)
 {
