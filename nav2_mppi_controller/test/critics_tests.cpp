@@ -61,7 +61,8 @@ TEST(CriticTests, ConstraintsCritic)
   float model_dt = 0.1;
   geometry_msgs::msg::Pose dummy_goal_;
   CriticData data =
-  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr, std::nullopt,
+  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr,
+    std::nullopt,
     std::nullopt};
   data.motion_model = std::make_shared<DiffDriveMotionModel>();
 
@@ -210,7 +211,8 @@ TEST(CriticTests, GoalAngleCritic)
   float model_dt = 0.1;
   geometry_msgs::msg::Pose dummy_goal_;
   CriticData data =
-  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr, std::nullopt,
+  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr,
+    std::nullopt,
     std::nullopt};
   data.motion_model = std::make_shared<DiffDriveMotionModel>();
 
@@ -263,7 +265,8 @@ TEST(CriticTests, GoalAngleSymmetricCritic)
   float model_dt = 0.1;
   geometry_msgs::msg::Pose dummy_goal_;
   CriticData data =
-  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr, std::nullopt,
+  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr,
+    std::nullopt,
     std::nullopt};
   data.motion_model = std::make_shared<DiffDriveMotionModel>();
 
@@ -313,7 +316,8 @@ TEST(CriticTests, GoalCritic)
   float model_dt = 0.1;
   geometry_msgs::msg::Pose dummy_goal_;
   CriticData data =
-  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr, std::nullopt,
+  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr,
+    std::nullopt,
     std::nullopt};
   data.motion_model = std::make_shared<DiffDriveMotionModel>();
 
@@ -364,7 +368,8 @@ TEST(CriticTests, PathAngleCritic)
   float model_dt = 0.1;
   geometry_msgs::msg::Pose dummy_goal_;
   CriticData data =
-  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr, std::nullopt,
+  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr,
+    std::nullopt,
     std::nullopt};
   data.motion_model = std::make_shared<DiffDriveMotionModel>();
   TestGoalChecker goal_checker;  // from utils_tests tolerance of 0.25 positionally
@@ -422,7 +427,8 @@ TEST(CriticTests, PreferForwardCritic)
   float model_dt = 0.1;
   geometry_msgs::msg::Pose dummy_goal_;
   CriticData data =
-  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr, std::nullopt,
+  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr,
+    std::nullopt,
     std::nullopt};
   data.motion_model = std::make_shared<DiffDriveMotionModel>();
   TestGoalChecker goal_checker;  // from utils_tests tolerance of 0.25 positionally
@@ -476,7 +482,8 @@ TEST(CriticTests, TwirlingCritic)
   float model_dt = 0.1;
   geometry_msgs::msg::Pose dummy_goal_;
   CriticData data =
-  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr, std::nullopt,
+  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr,
+    std::nullopt,
     std::nullopt};
   data.motion_model = std::make_shared<DiffDriveMotionModel>();
   TestGoalChecker goal_checker;  // from utils_tests tolerance of 0.25 positionally
@@ -537,7 +544,8 @@ TEST(CriticTests, PathFollowCritic)
   float model_dt = 0.1;
   geometry_msgs::msg::Pose dummy_goal_;
   CriticData data =
-  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr, std::nullopt,
+  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr,
+    std::nullopt,
     std::nullopt};
   data.motion_model = std::make_shared<DiffDriveMotionModel>();
   TestGoalChecker goal_checker;  // from utils_tests tolerance of 0.25 positionally
@@ -586,7 +594,8 @@ TEST(CriticTests, PathAlignCritic)
   float model_dt = 0.1;
   geometry_msgs::msg::Pose dummy_goal_;
   CriticData data =
-  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr, std::nullopt,
+  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr,
+    std::nullopt,
     std::nullopt};
   data.motion_model = std::make_shared<DiffDriveMotionModel>();
   TestGoalChecker goal_checker;  // from utils_tests tolerance of 0.25 positionally
@@ -691,7 +700,8 @@ TEST(CriticTests, PathAlignLegacyCritic)
   float model_dt = 0.1;
   geometry_msgs::msg::Pose dummy_goal_;
   CriticData data =
-  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr, std::nullopt,
+  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr,
+    std::nullopt,
     std::nullopt};
   data.motion_model = std::make_shared<DiffDriveMotionModel>();
   TestGoalChecker goal_checker;  // from utils_tests tolerance of 0.25 positionally
@@ -797,7 +807,8 @@ TEST(CriticTests, VelocityDeadbandCritic)
   float model_dt = 0.1;
   geometry_msgs::msg::Pose dummy_goal_;
   CriticData data =
-  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr, std::nullopt,
+  {state, generated_trajectories, path, dummy_goal_, costs, model_dt, false, nullptr, nullptr,
+    std::nullopt,
     std::nullopt};
   data.motion_model = std::make_shared<OmniMotionModel>();
 

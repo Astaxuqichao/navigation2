@@ -256,12 +256,13 @@ DWBLocalPlanner::computeVelocityCommands(
   geometry_msgs::msg::PoseStamped pose_in_costmap = pose;
   const std::string costmap_frame = costmap_ros_->getGlobalFrameID();
   if (!pose.header.frame_id.empty() && pose.header.frame_id != costmap_frame) {
-    if (!nav_2d_utils::transformPose(tf_, costmap_frame, pose, pose_in_costmap,
-                                     transform_tolerance_))
+    if (!nav_2d_utils::transformPose(
+        tf_, costmap_frame, pose, pose_in_costmap,
+        transform_tolerance_))
     {
       throw dwb_core::PlannerTFException(
-        std::string("Unable to transform robot pose into costmap frame '") +
-        costmap_frame + "'");
+              std::string("Unable to transform robot pose into costmap frame '") +
+              costmap_frame + "'");
     }
   }
 
